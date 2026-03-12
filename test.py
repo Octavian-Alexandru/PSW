@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 
 # --- CONFIGURARE PAGINĂ ---
@@ -58,7 +59,7 @@ col4.metric("% Vândute de Dealeri", f"{dealer_pct:.1f}%")
 st.divider()
 
 # --- TAB-URI ---
-tab1, tab2, tab3 = st.tabs(["📊 Analiză Piață", "📍 Analiză Vânzători & Locație", "💎 Radar Chilipiruri (Best Value)"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Analiză Piață", "📍 Analiză Vânzători & Locație", "💎 Radar Chilipiruri (Best Value)", "Bonus ca mi s-a parut misto"])
 
 with tab1:
     st.subheader("Dinamica Prețului și a Deprecierii")
@@ -150,3 +151,36 @@ with tab3:
                 "Nu au fost găsite oferte de tip 'Best Value' pentru filtrele curente. Încearcă să extinzi selecția (mai mulți ani, preț mai mare).")
     else:
         st.warning("Nu există date conform filtrelor selectate.")
+with tab4:
+    st.header("Graficul 4 — Heatmap: Matricea corelațiilor")
+
+    coloane_numerice = ["price", "mileage_km", "year"]
+    corr = df[coloane_numerice].corr().round(2)
+
+    fig = go.Figure(data=go.Heatmap(
+        z=corr.values,
+        x=corr.columns,
+        y=corr.index,
+        colorscale="RdBu",
+        zmid=0,
+        text=corr.values,
+        texttemplate="%{text}",
+        hoverongaps=False,
+    ))
+
+    fig.update_layout(title="Matricea corelațiilor")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.header("Graficul 5 — Sunburst: Structura ierarhică a datelor")
+
+    fig = px.sunburst(
+        df,
+        path=["Brand", "Model"],
+        values="price",
+        color="Brand",
+        title="Structura ierarhică a datelor (Brand -> Model)"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("---")
